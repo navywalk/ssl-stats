@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saltaire Softball League — Stats</title>
+<style>
+:root{
+  color-scheme: light;
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --accent:#2a78d6; --accent-soft:#cde2fb; --gold:#eda100;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5; --accent-soft:#184f95; --gold:#c98500;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+  --accent:#3987e5; --accent-soft:#184f95; --gold:#c98500;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.45}
+.wrap{max-width:1140px;margin:0 auto;padding:20px 16px 60px}
+header.site{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin:8px 0 4px}
+header.site h1{font-size:26px;font-weight:700;margin:0}
+header.site .sub{color:var(--ink2);font-size:14px}
+.meta-line{color:var(--muted);font-size:12.5px;margin:2px 0 18px}
+#themeBtn{margin-left:auto;background:var(--surface);border:1px solid var(--border);color:var(--ink2);
+  border-radius:8px;padding:5px 12px;font-size:13px;cursor:pointer}
+#themeBtn:hover{color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 22px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.tile .lbl{font-size:12.5px;color:var(--ink2)}
+.tile .val{font-size:26px;font-weight:600;margin-top:2px}
+.tile .note{font-size:11.5px;color:var(--muted);margin-top:2px}
+nav.tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--grid);padding-bottom:0;margin-bottom:20px}
+nav.tabs button{background:none;border:none;border-bottom:2.5px solid transparent;color:var(--ink2);
+  font-size:14.5px;font-weight:500;padding:8px 12px;cursor:pointer}
+nav.tabs button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+nav.tabs button:hover{color:var(--ink)}
+h2.sec{font-size:17px;font-weight:700;margin:26px 0 4px}
+.qual{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.lb{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px 10px}
+.lb h3{margin:0 0 10px;font-size:13.5px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em}
+.lb .top{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--grid);margin-bottom:6px}
+.lb .top .v{font-size:26px;font-weight:700}
+.lb .top .who{font-size:14px;font-weight:600}
+.lb .top .tm{font-size:12px;color:var(--muted)}
+.lb ol{list-style:none;margin:0;padding:0}
+.lb li{display:flex;gap:8px;align-items:baseline;padding:3.5px 0;font-size:13.5px}
+.lb li .rk{color:var(--muted);width:18px;flex:none;font-variant-numeric:tabular-nums;font-size:12px}
+.lb li .who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb li .tm{color:var(--muted);font-size:11.5px}
+.lb li .v{font-variant-numeric:tabular-nums;font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--surface)}
+.tblwrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin:10px 0 6px}
+th,td{padding:6px 10px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th{color:var(--ink2);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em;
+  border-bottom:1px solid var(--baseline);cursor:pointer;user-select:none;position:sticky;top:0;background:var(--surface)}
+th.nosort{cursor:default}
+th:first-child,td:first-child{text-align:left}
+td.txt,th.txt{text-align:left}
+tbody tr{border-bottom:1px solid var(--grid)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb, var(--accent) 6%, var(--surface))}
+tr.hl td{font-weight:600}
+th .arr{font-size:9px;color:var(--accent)}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.pills button{background:var(--surface);border:1px solid var(--border);border-radius:999px;
+  color:var(--ink2);font-size:13px;padding:4px 12px;cursor:pointer}
+.pills button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.ctl input[type=search]{background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  color:var(--ink);padding:6px 10px;font-size:13.5px;width:220px}
+.ctl select{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--ink);
+  padding:6px 8px;font-size:13.5px}
+.foot{margin-top:34px;border-top:1px solid var(--grid);padding-top:12px;color:var(--muted);font-size:12.5px}
+.foot p{margin:4px 0}
+.count{color:var(--muted);font-size:12px;margin:2px 2px 10px}
+.rec-cat{margin-bottom:4px}
+@media (max-width:640px){ .lb .top .v{font-size:22px} header.site h1{font-size:22px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site">
+  <h1>Saltaire Softball League</h1>
+  <span class="sub" id="subTitle"></span>
+  <button id="themeBtn">◐ Theme</button>
+</header>
+<div class="meta-line" id="metaLine"></div>
+
+<div class="tiles" id="tiles"></div>
+
+<nav class="tabs" id="tabs"></nav>
+<main id="view"></main>
+
+<div class="foot">
+  <p><strong>Notes.</strong> All ERA figures are on a 7-inning basis (ER × 7 ÷ IP). Pitcher IP uses baseball thirds (.1 = ⅓, .2 = ⅔ of an inning).</p>
+  <p>2018 was imported from batting-only screenshots: no pitching data exists for that season (team ERA/IP blank).</p>
+  <p>Career batting rows come from the workbook's Career sheet; a known set of ~81 career rows carries small drift (1–2 G) vs. season-row sums inherited from the source dataset. Season rows reconcile with box scores and are ground truth.</p>
+  <p id="srcLine"></p>
+</div>
+</div>
+<script>
+const DATA = __DATA__;
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const CUR = Math.max(...DATA.meta.seasons);
+const f3 = v => v==null ? '—' : (v>=1 ? v.toFixed(3) : v.toFixed(3).replace(/^0/,''));
+const f2 = v => v==null ? '—' : (+v).toFixed(2);
+const f1 = v => v==null ? '—' : (+v).toFixed(1);
+const fi = v => v==null ? '—' : (''+v);
+const esc = s => (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* theme toggle */
+$('#themeBtn').onclick = () => {
+  const r = document.documentElement;
+  const dark = getComputedStyle(document.body).backgroundColor !== 'rgb(249, 249, 247)';
+  r.setAttribute('data-theme', dark ? 'light' : 'dark');
+};
+
+/* ---------- header & tiles ---------- */
+const S = DATA.meta.seasons;
+$('#subTitle').textContent = `${S[0]}–${S[S.length-1]} · ${S.length} seasons`;
+$('#metaLine').textContent = `Source: ${DATA.meta.source_file} (workbook updated ${DATA.meta.source_modified}) · page generated ${DATA.meta.generated}`;
+$('#srcLine').textContent  = `Built from ${DATA.meta.source_file}. Refresh with the update-ssl-page skill after workbook updates.`;
+
+(function tiles(){
+  const ts = DATA.team_season, bs = DATA.batting_season;
+  const games = ts.reduce((a,r)=>a+(r.W||0)+(r.L||0)+(r.T||0),0)/2;
+  const players = new Set(DATA.batting_career.map(r=>r.Player)).size;
+  const hr = bs.reduce((a,r)=>a+(r.HR||0),0);
+  const runs = bs.reduce((a,r)=>a+(r.R||0),0);
+  const cur = ts.filter(r=>r.Season===CUR);
+  const curG = cur.reduce((a,r)=>a+(r.W||0)+(r.L||0)+(r.T||0),0)/2;
+  const t = [
+    ['Seasons', S.length, `${S[0]}–${S[S.length-1]} (no 2020)`],
+    ['Games logged', games, `${curG} in ${CUR}`],
+    ['Players (career)', players, 'unique career rows'],
+    ['Home runs', hr.toLocaleString(), 'all seasons'],
+    ['Runs scored', runs.toLocaleString(), 'all seasons'],
+  ];
+  $('#tiles').innerHTML = t.map(([l,v,n]) =>
+    `<div class="tile"><div class="lbl">${l}</div><div class="val">${v}</div><div class="note">${n}</div></div>`).join('');
+})();
+
+/* ---------- leaderboard machinery ---------- */
+function leaders(rows, key, {asc=false, qual=null, fmt=fi, disp=null, n=10}={}){
+  let rs = rows.filter(r => r[key]!=null && (!qual || qual(r)));
+  rs.sort((a,b)=> asc ? a[key]-b[key] : b[key]-a[key]);
+  rs = rs.slice(0,n);
+  return rs.map(r => ({who:r.Player||r.Pitcher, tm:r.Team, season:r.Season,
+    val: disp ? disp(r) : fmt(r[key])}));
+}
+function lbCard(title, items, showSeason){
+  if(!items.length) return '';
+  const [t,...rest] = items;
+  return `<div class="lb"><h3>${esc(title)}</h3>
+    <div class="top"><span class="v">${t.val}</span>
+      <span><div class="who">${esc(t.who)}</div>
+      <div class="tm">${esc(t.tm)}${showSeason?` · ${t.season}`:''}</div></span></div>
+    <ol>${rest.map((x,i)=>`<li><span class="rk">${i+2}</span><span class="who">${esc(x.who)}
+      <span class="tm">${esc(x.tm)}${showSeason?` · ${x.season}`:''}</span></span>
+      <span class="v">${x.val}</span></li>`).join('')}</ol></div>`;
+}
+
+const B_SEASON_QUAL = 20, B_CAREER_QUAL = 100, P_SEASON_QUAL = 15, P_CAREER_QUAL = 75;
+
+const batCats = (qual) => [
+  ['Batting average','AVG',{fmt:f3, qual:r=>r.AB>=qual}],
+  ['OPS','OPS',{fmt:f3, qual:r=>r.AB>=qual}],
+  ['Home runs','HR',{}], ['RBI','RBI',{}], ['Hits','H',{}], ['Runs','R',{}],
+  ['Total bases','TB',{}], ['Walks','BB',{}],
+];
+const pitCats = (qual) => [
+  ['ERA','ERA',{asc:true, fmt:f2, qual:r=>r.IPdec>=qual}],
+  ['WHIP','WHIP',{asc:true, fmt:f2, qual:r=>r.IPdec>=qual}],
+  ['Wins','W',{}], ['Strikeouts','SO',{}],
+  ['Innings pitched','IPdec',{disp:r=>r.IP}],
+];
+
+/* ---------- views ---------- */
+function viewSeasonLeaders(){
+  const bs = DATA.batting_season.filter(r=>r.Season===CUR);
+  const ps = DATA.pitching_season.filter(r=>r.Season===CUR);
+  return `<h2 class="sec">${CUR} batting leaders</h2>
+    <p class="qual">Rate stats require ≥ ${B_SEASON_QUAL} AB.</p>
+    <div class="cards">${batCats(B_SEASON_QUAL).map(([t,k,o])=>lbCard(t, leaders(bs,k,o), false)).join('')}</div>
+    <h2 class="sec">${CUR} pitching leaders</h2>
+    <p class="qual">ERA & WHIP require ≥ ${P_SEASON_QUAL} IP. ERA is 7-inning basis.</p>
+    <div class="cards">${pitCats(P_SEASON_QUAL).map(([t,k,o])=>lbCard(t, leaders(ps,k,o), false)).join('')}</div>`;
+}
+function viewCareerLeaders(){
+  return `<h2 class="sec">Career batting leaders</h2>
+    <p class="qual">All seasons combined. Rate stats require ≥ ${B_CAREER_QUAL} AB. See notes on career-row drift.</p>
+    <div class="cards">${batCats(B_CAREER_QUAL).concat([['Games','G',{}]]).map(([t,k,o])=>lbCard(t, leaders(DATA.batting_career,k,o), false)).join('')}</div>
+    <h2 class="sec">Career pitching leaders</h2>
+    <p class="qual">ERA & WHIP require ≥ ${P_CAREER_QUAL} IP. ERA is 7-inning basis. No 2018 pitching data exists.</p>
+    <div class="cards">${pitCats(P_CAREER_QUAL).map(([t,k,o])=>lbCard(t, leaders(DATA.pitching_career,k,o), false)).join('')}</div>`;
+}
+function viewRecords(){
+  const bs = DATA.batting_season, ps = DATA.pitching_season;
+  const cats = [
+    ...batCats(B_SEASON_QUAL).map(([t,k,o])=>['Batting — '+t, leaders(bs,k,{...o,n:5})]),
+    ...pitCats(P_SEASON_QUAL).map(([t,k,o])=>['Pitching — '+t, leaders(ps,k,{...o,n:5})]),
+  ];
+  return `<h2 class="sec">Single-season records</h2>
+    <p class="qual">Best individual seasons, ${S[0]}–${CUR}. Rate stats: ≥ ${B_SEASON_QUAL} AB (batting) / ≥ ${P_SEASON_QUAL} IP (pitching). Season length varies by year.</p>
+    <div class="cards">${cats.map(([t,items])=>lbCard(t, items, true)).join('')}</div>`;
+}
+
+/* standings */
+let stdSeason = CUR;
+function stdTable(rows, cols){
+  const body = rows.map((r,i)=>`<tr${i===0?' class="hl"':''}>${cols.map(c=>
+    `<td class="${c.txt?'txt':''}">${c.fmt(r)}</td>`).join('')}</tr>`).join('');
+  return `<div class="tblwrap"><table><thead><tr>${cols.map(c=>`<th class="nosort ${c.txt?'txt':''}">${c.h}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+function viewStandings(){
+  const cols = [
+    {h:'Team',txt:1,fmt:r=>esc(r.Team)},{h:'W',fmt:r=>fi(r.W)},{h:'L',fmt:r=>fi(r.L)},{h:'T',fmt:r=>fi(r.T)},
+    {h:'Win%',fmt:r=>f3(r['Win%'])},{h:'RS',fmt:r=>fi(r.RS)},{h:'RA',fmt:r=>fi(r.RA)},
+    {h:'Diff',fmt:r=>r.Diff>0?'+'+r.Diff:fi(r.Diff)},{h:'R/G',fmt:r=>f1(r['R/G'])},{h:'RA/G',fmt:r=>f1(r['RA/G'])},
+    {h:'AVG',fmt:r=>f3(r['Team AVG'])},{h:'ERA',fmt:r=>r.ERA==null?'—':f2(r.ERA)},
+  ];
+  const rows = DATA.team_season.filter(r=>r.Season===stdSeason)
+      .slice().sort((a,b)=>b['Win%']-a['Win%'] || b.Diff-a.Diff);
+  const pills = [...S].reverse().map(s=>`<button class="${s===stdSeason?'on':''}" data-s="${s}">${s}</button>`).join('');
+  const carCols = [
+    {h:'Team',txt:1,fmt:r=>esc(r.Team)},{h:'Seasons',fmt:r=>fi(r.Seasons)},{h:'G',fmt:r=>fi(r.G)},
+    {h:'W',fmt:r=>fi(r.W)},{h:'L',fmt:r=>fi(r.L)},{h:'T',fmt:r=>fi(r.T)},{h:'Win%',fmt:r=>f3(r['Win%'])},
+    {h:'RS',fmt:r=>fi(r.RS)},{h:'RA',fmt:r=>fi(r.RA)},{h:'Diff',fmt:r=>r.Diff>0?'+'+r.Diff:fi(r.Diff)},
+    {h:'AVG',fmt:r=>f3(r['Team AVG'])},{h:'ERA',fmt:r=>r.ERA==null?'—':f2(r.ERA)},
+  ];
+  const car = DATA.team_career.slice().sort((a,b)=>b['Win%']-a['Win%']);
+  return `<h2 class="sec">Standings</h2>
+    <div class="pills" id="stdPills">${pills}</div>
+    ${stdTable(rows, cols)}
+    <h2 class="sec">All-time franchise records</h2>
+    <p class="qual">All seasons combined. ERA is 7-inning basis; excludes 2018 (no pitching data).</p>
+    ${stdTable(car, carCols)}`;
+}
+
+/* full stats */
+const SHEETS = {
+  batting_season:{label:'Batting · season', season:true, name:'Player',
+    cols:['Season','Team','Player','G','AB','R','H','2B','3B','HR','XBH','TB','RBI','BB','SO','AVG','OBP','SLG','OPS','ISO'],
+    fmts:{AVG:f3,OBP:f3,SLG:f3,OPS:f3,ISO:f3}, sort:['OPS',false]},
+  batting_career:{label:'Batting · career', season:false, name:'Player',
+    cols:['Player','Team','Seasons','Years','G','AB','R','H','2B','3B','HR','XBH','TB','RBI','BB','SO','AVG','OBP','SLG','OPS','ISO'],
+    fmts:{AVG:f3,OBP:f3,SLG:f3,OPS:f3,ISO:f3}, sort:['H',false]},
+  pitching_season:{label:'Pitching · season', season:true, name:'Pitcher',
+    cols:['Season','Team','Pitcher','G','IP','W','L','H','R','ER','BB','SO','HR','ERA','WHIP','K/7','BB/7'],
+    fmts:{ERA:f2,WHIP:f2,'K/7':f1,'BB/7':f1}, sort:['IP',false], sortKeyMap:{IP:'IPdec'}},
+  pitching_career:{label:'Pitching · career', season:false, name:'Pitcher',
+    cols:['Pitcher','Team','Seasons','Years','G','IP','W','L','H','R','ER','BB','SO','HR','ERA','WHIP','K/7','BB/7'],
+    fmts:{ERA:f2,WHIP:f2,'K/7':f1,'BB/7':f1}, sort:['IP',false], sortKeyMap:{IP:'IPdec'}},
+  team_season:{label:'Teams · season', season:true, name:'Team',
+    cols:['Season','Team','W','L','T','Win%','RS','RA','Diff','R/G','RA/G','AB','H','2B','3B','HR','Team AVG','IP','ERA','K','BB'],
+    fmts:{'Win%':f3,'R/G':f1,'RA/G':f1,'Team AVG':f3,ERA:f2,IP:f1}, sort:['Win%',false]},
+  team_career:{label:'Teams · career', season:false, name:'Team',
+    cols:['Team','Seasons','G','W','L','T','Win%','RS','RA','Diff','AB','H','2B','3B','HR','Team AVG','IP','ERA'],
+    fmts:{'Win%':f3,'Team AVG':f3,ERA:f2,IP:f1}, sort:['Win%',false]},
+};
+let fsSheet='batting_season', fsSearch='', fsSeason='all', fsSort=null;
+
+function viewFull(){
+  const cfg = SHEETS[fsSheet];
+  const [sk, asc] = fsSort || cfg.sort;
+  const skReal = (cfg.sortKeyMap||{})[sk] || sk;
+  let rows = DATA[fsSheet];
+  if(cfg.season && fsSeason!=='all') rows = rows.filter(r=>r.Season==fsSeason);
+  if(fsSearch){
+    const q = fsSearch.toLowerCase();
+    rows = rows.filter(r => (''+(r.Player||r.Pitcher||'')).toLowerCase().includes(q)
+      || (''+r.Team).toLowerCase().includes(q));
+  }
+  rows = rows.slice().sort((a,b)=>{
+    let x=a[skReal], y=b[skReal];
+    if(x==null) return 1; if(y==null) return -1;
+    if(typeof x==='string' || typeof y==='string'){ x=''+x; y=''+y; return asc? x.localeCompare(y): y.localeCompare(x); }
+    return asc? x-y : y-x;
+  });
+  const pills = Object.entries(SHEETS).map(([k,c])=>
+    `<button class="${k===fsSheet?'on':''}" data-sheet="${k}">${c.label}</button>`).join('');
+  const seasonSel = cfg.season ? `<select id="fsSeason">
+      <option value="all">All seasons</option>
+      ${[...S].reverse().map(s=>`<option value="${s}" ${''+s===''+fsSeason?'selected':''}>${s}</option>`).join('')}</select>` : '';
+  const head = cfg.cols.map(c=>{
+    const txt = ['Team','Player','Pitcher','Years'].includes(c);
+    const arr = c===sk ? `<span class="arr">${asc?'▲':'▼'}</span> ` : '';
+    return `<th class="${txt?'txt':''}" data-col="${esc(c)}">${arr}${esc(c)}</th>`;
+  }).join('');
+  const body = rows.map(r=>`<tr>${cfg.cols.map(c=>{
+    const txt = ['Team','Player','Pitcher','Years'].includes(c);
+    const fmt = cfg.fmts[c];
+    let v = r[c];
+    v = v==null ? '—' : (fmt ? fmt(v) : esc(v));
+    return `<td class="${txt?'txt':''}">${v}</td>`;}).join('')}</tr>`).join('');
+  return `<h2 class="sec">Full stats</h2>
+    <div class="pills" id="fsPills">${pills}</div>
+    <div class="ctl">
+      <input type="search" id="fsSearch" placeholder="Search player or team…" value="${esc(fsSearch)}">
+      ${seasonSel}
+    </div>
+    <div class="count">${rows.length.toLocaleString()} rows · click a column to sort</div>
+    <div class="tblwrap" style="max-height:70vh;overflow:auto"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+/* ---------- tabs & events ---------- */
+const TABS = [
+  [`${CUR} Leaders`, viewSeasonLeaders],
+  ['Career Leaders', viewCareerLeaders],
+  ['Season Records', viewRecords],
+  ['Standings', viewStandings],
+  ['Full Stats', viewFull],
+];
+let tab = 0;
+function render(){
+  $('#tabs').innerHTML = TABS.map(([t],i)=>`<button class="${i===tab?'on':''}" data-i="${i}">${t}</button>`).join('');
+  $('#view').innerHTML = TABS[tab][1]();
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest('button');
+  if(!b) return;
+  if(b.dataset.i!=null){ tab=+b.dataset.i; render(); }
+  else if(b.dataset.s){ stdSeason=+b.dataset.s; render(); }
+  else if(b.dataset.sheet){ fsSheet=b.dataset.sheet; fsSort=null; fsSeason='all'; render(); }
+  else if(b.closest && false){}
+});
+document.addEventListener('click', e=>{
+  const th = e.target.closest('th[data-col]');
+  if(!th) return;
+  const c = th.dataset.col, cur = fsSort || SHEETS[fsSheet].sort;
+  fsSort = [c, cur[0]===c ? !cur[1] : ['Team','Player','Pitcher','Years'].includes(c)];
+  render();
+});
+document.addEventListener('input', e=>{
+  if(e.target.id==='fsSearch'){
+    fsSearch=e.target.value;
+    const sc = e.target.selectionStart; render();
+    const el=$('#fsSearch'); el.focus(); el.setSelectionRange(sc,sc);
+  }
+});
+document.addEventListener('change', e=>{
+  if(e.target.id==='fsSeason'){ fsSeason=e.target.value; render(); }
+});
+render();
+</script>
+</body>
+</html>
